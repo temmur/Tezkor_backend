@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 
 // Подключение к MongoDB
 mongoose.connect('mongodb+srv://ecosystuz:ecosyst.2001@cluster0.dc35z.mongodb.net/tezkorusta?retryWrites=true&w=majority&appName=Cluster0' , {
-  useNewUrlParser: true,
+//   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
   .then(() => console.log('MongoDB подключен'))
