@@ -7,7 +7,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const masterRoutes = require('./routes/masterRoutes');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 // Middleware
 app.use(cors());

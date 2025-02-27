@@ -1,7 +1,7 @@
 {
   "name": "twitter-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "service.js",
   "scripts": {
     "start": "node service.js",
     "dev": "nodemon service.js"
