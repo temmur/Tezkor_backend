@@ -21,6 +21,16 @@ mongoose.connect('mongodb+srv://ecosystuz:ecosyst.2001@cluster0.dc35z.mongodb.ne
   .then(() => console.log('MongoDB подключен'))
   .catch((err) => console.error('Ошибка подключения к MongoDB:', err));
 
+  setInterval(async () => {
+    try {
+        const result = await mongoose.connection.db.admin().ping();
+        console.log("MongoDB ping:", result);
+    } catch (error) {
+        console.error("MongoDB ping failed:", error);
+    }
+}, 10 * 60 * 1000); // Пинг каждые 10 минут
+
+
 // Маршруты
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
