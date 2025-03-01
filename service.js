@@ -31,6 +31,19 @@ mongoose.connect('mongodb+srv://ecosystuz:ecosyst.2001@cluster0.dc35z.mongodb.ne
 }, 10 * 60 * 1000); // Пинг каждые 10 минут
 
 
+// Автопереподключение каждые 5 минут
+setInterval(async () => {
+    if (mongoose.connection.readyState !== 1) {
+        console.log("🔄 Reconnecting to MongoDB...");
+        await connectToMongoDB();
+    }
+}, 5 * 60 * 1000);
+
+// Роут для проверки активности сервера (UptimeRobot)
+app.get('/api/ping', (req, res) => {
+    res.status(200).send("✅ Server is alive");
+});
+
 // Маршруты
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
@@ -38,9 +51,6 @@ app.use('/api/orders', orderRoutes);
 // Подключение маршрутов
 app.use('/api/masters', masterRoutes);
 
-app.get('/api/ping', (req, res) => {
-    res.status(200).send("Server is alive");
-});
 
 // Запуск сервера
 app.listen(PORT, () => {
