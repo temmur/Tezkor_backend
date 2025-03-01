@@ -38,6 +38,10 @@ app.use('/api/orders', orderRoutes);
 // Подключение маршрутов
 app.use('/api/masters', masterRoutes);
 
+app.get('/api/ping', (req, res) => {
+    res.status(200).send("Server is alive");
+});
+
 // Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
