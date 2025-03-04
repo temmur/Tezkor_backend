@@ -2,42 +2,60 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const axios = require('axios');
+
 const userRoutes = require('./routes/userRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const masterRoutes = require('./routes/masterRoutes');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+const MONGO_URI = 'mongodb+srv://ecosystuz:ecosyst.2001@cluster0.dc35z.mongodb.net/tezkorusta?retryWrites=true&w=majority&appName=Cluster0';
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Подключение к MongoDB
-mongoose.connect('mongodb+srv://ecosystuz:ecosyst.2001@cluster0.dc35z.mongodb.net/tezkorusta?retryWrites=true&w=majority&appName=Cluster0' , {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-})
-  .then(() => console.log('MongoDB подключен'))
-  .catch((err) => console.error('Ошибка подключения к MongoDB:', err));
-
-  setInterval(async () => {
+// Функция подключения к MongoDB
+const connectToMongoDB = async () => {
     try {
-        const result = await mongoose.connection.db.admin().ping();
-        console.log("MongoDB ping:", result);
+        await mongoose.connect(MONGO_URI);
+        console.log('✅ MongoDB подключен');
     } catch (error) {
-        console.error("MongoDB ping failed:", error);
+        console.error('❌ Ошибка подключения к MongoDB:', error);
     }
-}, 10 * 60 * 1000); // Пинг каждые 10 минут
+};
 
+// Первоначальное подключение
+connectToMongoDB();
 
-// Автопереподключение каждые 5 минут
+// Проверка активности MongoDB каждые 10 минут
+setInterval(async () => {
+    try {
+        await mongoose.connection.db.collection('users').findOne();
+        console.log("✅ MongoDB ping success");
+    } catch (error) {
+        console.error("❌ MongoDB ping failed:", error);
+    }
+}, 10 * 60 * 1000);
+
+// Автопереподключение каждые 5 минут, если база отвалилась
 setInterval(async () => {
     if (mongoose.connection.readyState !== 1) {
         console.log("🔄 Reconnecting to MongoDB...");
         await connectToMongoDB();
     }
 }, 5 * 60 * 1000);
+
+// Keep-alive для сервера (каждые 4 мин)
+setInterval(async () => {
+    try {
+        await axios.get(`https://tezkor-backend.onrender.com/api/ping`);
+        console.log("✅ Self-ping success");
+    } catch (error) {
+        console.error("❌ Self-ping failed:", error);
+    }
+}, 4 * 60 * 1000);
 
 // Роут для проверки активности сервера (UptimeRobot)
 app.get('/api/ping', (req, res) => {
@@ -47,13 +65,9 @@ app.get('/api/ping', (req, res) => {
 // Маршруты
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
-
-// Подключение маршрутов
 app.use('/api/masters', masterRoutes);
-
 
 // Запуск сервера
 app.listen(PORT, () => {
-  console.log(`Сервер запущен на http://localhost:${PORT}`);
+    console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
 });
-
